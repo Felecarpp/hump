@@ -51,6 +51,35 @@ local function randomDirection(len_min, len_max)
 	                 math.random() * (len_max-len_min) + len_min)
 end
 
+-- < 0 -> counterclockwise
+-- = 0 -> colinear
+-- > 0 -> clockwise
+local function alignment(a, b, c)
+	return (c.x - b.x) * (b.y - a.y) - (c.y - b.y) * (b.x - a.x)
+end
+
+-- find intersection between line a-b and line c-d
+local function intersection(a, b, c, d)
+	local t = ((a.x-c.x) * (a.y-b.y) - (a.y-c.y) * (a.x-b.x))
+	        / ((d.x-c.x) * (a.y-b.y) - (d.y-c.y) * (a.x-b.x))
+	return new(
+		(c.x + t * (d.x - c.x)),
+		(c.y + t * (d.y - c.y))
+	)
+end
+
+-- true if a has inferior angle than b, dist if angle equals
+local function polar_lt(a, b, center)
+	if (a.y - center.y) * (b.y - center.y)< 0 then return a.y > b.y end
+	if a.y == center.y and a.x > center.x then
+		return not (b.y == center.y and b.x > center.x and b.x < a.x)
+	end
+	if b.y == center.y and b.x > center.x then return false end
+	local align = alignment(center, a, b)
+	if align == 0 then return a:dist2(center) < b:dist2(center) end
+	return align < 0
+end
+
 local function isvector(v)
 	return type(v) == 'table' and type(v.x) == 'number' and type(v.y) == 'number'
 end
@@ -119,11 +148,11 @@ function vector:toPolar()
 end
 
 function vector:len2()
-	return self.x * self.x + self.y * self.y
+	return self.x ^ 2 + self.y ^ 2
 end
 
 function vector:len()
-	return sqrt(self.x * self.x + self.y * self.y)
+	return sqrt(self.x ^ 2 + self.y ^ 2)
 end
 
 function vector.dist(a, b)
@@ -211,6 +240,9 @@ return setmetatable({
 	new             = new,
 	fromPolar       = fromPolar,
 	randomDirection = randomDirection,
+	alignment       = alignment,
+	intersection    = intersection,
+	polar_lt        = polar_lt,
 	isvector        = isvector,
 	zero            = zero
 }, {
