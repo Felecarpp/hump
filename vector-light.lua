@@ -78,6 +78,32 @@ local function len(x,y)
 	return sqrt(x*x + y*y)
 end
 
+-- < 0 -> counterclockwise
+-- = 0 -> colinear
+-- > 0 -> clockwise
+local function alignment(ax, ay, bx, by, cx, cy)
+	return (cx - bx) * (by - ay) - (cy - by) * (bx - ax)
+end
+
+-- find intersection between line a-b and line c-d
+local function intersection(ax, ay, bx, by, cx, cy, dx, dy)
+	local t = ((ax-cx) * (ay-by) - (ay-cy) * (ax-bx))
+	        / ((dx-cx) * (ay-by) - (dy-cy) * (ax-bx))
+	return (cx + t * (dx - cx)), (cy + t * (dy - cy))
+end
+
+-- true if a has inferior angle than b, dist if angle equals
+local function polar_lt(x1, y1, x2, y2)
+	if y1 * y2 < 0 then return y1 > y2 end
+	if y1 == 0 and x1 > 0 then
+		return not (y2 == 0 and x2 > 0 and x2 < x1)
+	end
+	if y2 == 0 and x2 > 0 then return false end
+	local align = alignment(0, 0, x1, y1, x2, y2)
+	if align == 0 then return len2(x1, y1) < len2(x2, y2) end
+	return align < 0
+end
+
 local function fromPolar(angle, radius)
 	radius = radius or 1
 	return cos(angle)*radius, sin(angle)*radius
@@ -176,6 +202,9 @@ return {
 	len           = len,
 	dist2         = dist2,
 	dist          = dist,
+	alignment     = alignment,
+	intersection  = intersection,
+	polar_lt      = polar_lt,
 	normalize     = normalize,
 	rotate        = rotate,
 	perpendicular = perpendicular,
