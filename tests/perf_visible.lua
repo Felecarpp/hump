@@ -15,7 +15,7 @@ local segments = {
   224, 179, 281, 178,
 }
 
-local center = { x = 256, y = 256 }
+local center = { 256, 256 }
 
 local function use_visible_polygon()
   visible.polygon(segments, center)

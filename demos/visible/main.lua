@@ -1,4 +1,4 @@
-local vector = require("vector")
+local vector = require("vector-light")
 local visible = require("visible")
 
 
@@ -21,7 +21,7 @@ local create_segment
 
 local function print_info()
   print("camera")
-  print("{", camera.x, ",", camera.y, "}")
+  print("{", camera[1], ",", camera[2], "}")
   print("segments")
   print("{")
   for i = 1, #segments, 4 do
@@ -40,7 +40,7 @@ local function init()
   visibles = {}
   triangles = {}
   visibles_dirty = true
-  camera = vector.new(256, 256)
+  camera = { 256, 256 }
   camera_pressed = false
 end
 
@@ -69,7 +69,7 @@ function love.draw()
   -- camera
   love.graphics.setColor(CAMERA_COLOR)
   love.graphics.setPointSize(CAMERA_SIZE)
-  love.graphics.points(camera.x, camera.y)
+  love.graphics.points(camera[1], camera[2])
 
   love.graphics.setBackgroundColor(BACKGROUND_COLOR)
 end
@@ -98,7 +98,7 @@ end
 
 function love.mousepressed(x, y, button)
   if button == 1 then
-    if camera:dist({ x = x, y = y }) <= CAMERA_SIZE then
+    if vector.dist(camera[1], camera[2], x, y) <= CAMERA_SIZE then
       camera_pressed = true
     else
       create_segment = { x, y }
@@ -109,8 +109,8 @@ end
 function love.mousereleased(x, y, button)
   if button == 1 then
     if camera_pressed then
-      camera.x = x
-      camera.y = y
+      camera[1] = x
+      camera[2] = y
       camera_pressed = false
     elseif create_segment ~= nil then
       table.insert(segments, create_segment[1])

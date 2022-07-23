@@ -15,7 +15,11 @@ end
 function visible.polygon(segments, center)
   -- generic visibility function
   -- return concave (frequently) polygon
-  if center == nil then center = vector.zero end
+  if center == nil then
+    center = { x = 0, y = 0 }
+  else
+    center = { x = center[1], y = center[2] }
+  end
   local endpoints = {}
   do
     local next_endpoints = {}

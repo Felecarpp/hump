@@ -42,7 +42,7 @@ function TestVisibleSegments:testHideMiddle()
       4, 0, 4, 4,
       4, 4, 0, 4,
       0, 4, 0, 0
-    }, vec(2, 2)),
+    }, { 2, 2 }),
     { 4, 2, 4, 4, 0, 4, 0, 0, 1, 1, 3, 1, 4, 0 }
   )
 end
@@ -69,7 +69,7 @@ function TestVisibleSegments:testStartOnEnd()
       0, 2, 2, 2,
       0, 2, 0, 0,
       2, 0, 0, 0
-    }, vec(1, 1)),
+    }, { 1, 1 }),
     { 2, 1, 2, 2, 1, 2, 0, 1, 1, 0, 2, 0 }
   )
 end
@@ -133,7 +133,7 @@ function TestVisibleSegments:testRealBlank()
     0, 512, 0, 0,
     358, 97, 141, 73,
     322, 58, 196, 106,
-  }, vec(256, 256))
+  }, { 256, 256 })
   lu.assertEquals(#visibles, 24)
 end
 
@@ -145,7 +145,7 @@ function TestVisibleSegments:testCrossStartLine()
     0, 512, 0, 0,
     420, 307, 347, 123,
     350, 292, 407, 147,
-  }, vec(256, 256))
+  }, { 256, 256 })
   lu.assertEquals(#visibles, 18)
 end
 
@@ -158,7 +158,7 @@ function TestVisibleSegments:testTriangle()
     153, 79, 361, 87,
     182, 54, 299, 178,
     318, 54, 227, 173
-  }, vec(256, 256))
+  }, { 256, 256 })
   lu.assertEquals(#visibles, 28)
 end
 
