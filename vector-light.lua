@@ -22,60 +22,74 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-]]--
+]] --
 
 local sqrt, cos, sin, atan2 = math.sqrt, math.cos, math.sin, math.atan2
 
-local function str(x,y)
-	return "("..tonumber(x)..","..tonumber(y)..")"
+local function str(x, y)
+	return "(" .. tonumber(x) .. "," .. tonumber(y) .. ")"
 end
 
-local function mul(s, x,y)
-	return s*x, s*y
+local function mul(s, x, y)
+	return s * x, s * y
 end
 
-local function div(s, x,y)
-	return x/s, y/s
+local function div(s, x, y)
+	return x / s, y / s
 end
 
-local function add(x1,y1, x2,y2)
-	return x1+x2, y1+y2
+local function add(x1, y1, x2, y2)
+	return x1 + x2, y1 + y2
 end
 
-local function sub(x1,y1, x2,y2)
-	return x1-x2, y1-y2
+local function sub(x1, y1, x2, y2)
+	return x1 - x2, y1 - y2
 end
 
-local function permul(x1,y1, x2,y2)
-	return x1*x2, y1*y2
+local function permul(x1, y1, x2, y2)
+	return x1 * x2, y1 * y2
 end
 
-local function dot(x1,y1, x2,y2)
-	return x1*x2 + y1*y2
+local function dot(x1, y1, x2, y2)
+	return x1 * x2 + y1 * y2
 end
 
-local function det(x1,y1, x2,y2)
-	return x1*y2 - y1*x2
+local function det(x1, y1, x2, y2)
+	return x1 * y2 - y1 * x2
 end
 
-local function eq(x1,y1, x2,y2)
+local function eq(x1, y1, x2, y2)
 	return x1 == x2 and y1 == y2
 end
 
-local function lt(x1,y1, x2,y2)
+local function lt(x1, y1, x2, y2)
 	return x1 < x2 or (x1 == x2 and y1 < y2)
 end
 
-local function le(x1,y1, x2,y2)
+local function le(x1, y1, x2, y2)
 	return x1 <= x2 and y1 <= y2
 end
 
-local function len2(x,y)
-	return x*x + y*y
+local function len2(x, y)
+	return x * x + y * y
 end
 
-local function len(x,y)
-	return sqrt(x*x + y*y)
+local function len(x, y)
+	return sqrt(x * x + y * y)
+end
+
+-- equation of a line with a and b point
+local function lineeq(xa, ya, xb, yb)
+	if xa == xb then return -1, 0, xa end
+	local c = ya - xa * (yb - ya) * (xb - xa)
+	return (ya * c - yb * c) / (xa * yb - ya * xb),
+			(xb * c - xa * c) / (xa * yb - ya * xb),
+			c
+end
+
+-- if line (abc) is at dist r to point (x,y)
+local function linecontains(a, b, c, x, y, r)
+	return (a * x + b * y + c) ^ 2 <= r ^ 2 * (a ^ 2 + b ^ 2)
 end
 
 -- < 0 -> counterclockwise
@@ -87,9 +101,9 @@ end
 
 -- find intersection between line a-b and line c-d
 local function intersection(ax, ay, bx, by, cx, cy, dx, dy)
-	local t = ((ax-cx) * (ay-by) - (ay-cy) * (ax-bx))
-	        / ((dx-cx) * (ay-by) - (dy-cy) * (ax-bx))
-	return (cx + t * (dx - cx)), (cy + t * (dy - cy))
+	local n = (ax - cx) * (ay - by) - (ay - cy) * (ax - bx)
+	local d = (dx - cx) * (ay - by) - (dy - cy) * (ax - bx)
+	return (d * cx + n * (dx - cx)) / d, (d * cy + n * (dy - cy)) / d
 end
 
 -- true if a has inferior angle than b, dist if angle equals
@@ -106,7 +120,7 @@ end
 
 local function fromPolar(angle, radius)
 	radius = radius or 1
-	return cos(angle)*radius, sin(angle)*radius
+	return cos(angle) * radius, sin(angle) * radius
 end
 
 local function randomDirection(len_min, len_max)
@@ -116,47 +130,47 @@ local function randomDirection(len_min, len_max)
 	assert(len_max > 0, "len_max must be greater than zero")
 	assert(len_max >= len_min, "len_max must be greater than or equal to len_min")
 
-	return fromPolar(math.random()*2*math.pi,
-	                 math.random() * (len_max-len_min) + len_min)
+	return fromPolar(math.random() * 2 * math.pi,
+		math.random() * (len_max - len_min) + len_min)
 end
 
 local function toPolar(x, y)
-	return atan2(y,x), len(x,y)
+	return atan2(y, x), len(x, y)
 end
 
-local function dist2(x1,y1, x2,y2)
-	return len2(x1-x2, y1-y2)
+local function dist2(x1, y1, x2, y2)
+	return len2(x1 - x2, y1 - y2)
 end
 
-local function dist(x1,y1, x2,y2)
-	return len(x1-x2, y1-y2)
+local function dist(x1, y1, x2, y2)
+	return len(x1 - x2, y1 - y2)
 end
 
-local function normalize(x,y)
-	local l = len(x,y)
+local function normalize(x, y)
+	local l = len(x, y)
 	if l > 0 then
-		return x/l, y/l
+		return x / l, y / l
 	end
-	return x,y
+	return x, y
 end
 
-local function rotate(phi, x,y)
+local function rotate(phi, x, y)
 	local c, s = cos(phi), sin(phi)
-	return c*x - s*y, s*x + c*y
+	return c * x - s * y, s * x + c * y
 end
 
-local function perpendicular(x,y)
+local function perpendicular(x, y)
 	return -y, x
 end
 
-local function project(x,y, u,v)
-	local s = (x*u + y*v) / (u*u + v*v)
-	return s*u, s*v
+local function project(x, y, u, v)
+	local s = (x * u + y * v) / (u * u + v * v)
+	return s * u, s * v
 end
 
-local function mirror(x,y, u,v)
-	local s = 2 * (x*u + y*v) / (u*u + v*v)
-	return s*u - x, s*v - y
+local function mirror(x, y, u, v)
+	local s = 2 * (x * u + y * v) / (u * u + v * v)
+	return s * u - x, s * v - y
 end
 
 -- ref.: http://blog.signalsondisplay.com/?p=336
@@ -166,11 +180,26 @@ local function trim(maxLen, x, y)
 	return x * s, y * s
 end
 
-local function angleTo(x,y, u,v)
+local function angleTo(x, y, u, v)
 	if u and v then
 		return atan2(y, x) - atan2(v, u)
 	end
 	return atan2(y, x)
+end
+
+local function segmentcontains(xa, ya, xb, yb, xc, yc, r)
+	assert(xa ~= nil and ya ~= nil and xb ~= nil and yb ~= nil and xc ~= nil and yc ~= nil)
+	local r2
+	if r == nil then r2 = 0 else r2 = r ^ 2 end
+	local d2ac = dist2(xa, ya, xc, yc)
+	local d2bc = dist2(xb, yb, xc, yc)
+	if d2ac <= r2 or d2bc <= r2 then return true end
+	local d2ab = dist2(xa, ya, xb, yb)
+	if d2ac <= d2ab and d2bc <= d2ab then
+		local a, b, c = lineeq(xa, ya, xb, yb)
+		return linecontains(a, b, c, xc, yc, r)
+	end
+	return false
 end
 
 -- the module
@@ -212,4 +241,5 @@ return {
 	mirror        = mirror,
 	trim          = trim,
 	angleTo       = angleTo,
+	segmentcontains = segmentcontains
 }
